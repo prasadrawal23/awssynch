@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sns="http://www.mulesoft.org/schema/mule/sns" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:s3="http://www.mulesoft.org/schema/mule/s3" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/s3 http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sns http://www.mulesoft.org/schema/mule/sns/current/mule-sns.xsd">
+	<s3:config name="Amazon_S3_Configuration" doc:name="Amazon S3 Configuration" doc:id="8b38cea6-b11a-4fb3-9b88-277a29fae78b" >
+		<s3:basic-connection accessKey="AKIAJWKZDPLHRO4WPP7A" secretKey="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" region="AP_SOUTH_1"/>
+	</s3:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="02f5096f-d940-42a5-9e3b-aa912ab8a50f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<sns:config name="Amazon_SNS_configuration" doc:name="Amazon SNS configuration" doc:id="4855f19b-4c31-40ae-8346-ad55ec324e59" >
+		<sns:basic-connection accessKey="AKIAJWKZDPLHRO4WPP7A" secretKey="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" />
+	</sns:config>
+	<flow name="awsimplementationFlow1" doc:id="456dc767-b0c5-4ca8-b969-ea5607934b4a" >
+		<http:listener doc:name="Listener" doc:id="a2f0b8aa-32ce-47e7-913c-7d0b37517561" config-ref="HTTP_Listener_config" path="/aws"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3b42ac3a-c272-4534-8766-cd5edf58963a" message="going to get the records from object "/>
+		<s3:get-object doc:name="Get object" doc:id="90c6e780-117d-4ac1-bb59-3b58c9f37777" config-ref="Amazon_S3_Configuration" bucketName="prasadrawal" key="data.json"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8a1e7961-e286-4204-bbc8-c612f7ba6507" message="records fethched succssfully "/>
+		<logger level="INFO" doc:name="Logger" doc:id="09261018-2ba1-4c84-b36b-262821b3b398" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="51ef67be-6535-498b-b318-2c7d4534525c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
